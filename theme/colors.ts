@@ -2,33 +2,33 @@
 // مصدر الحقيقة الوحيد لكل الألوان في تطبيق Dawini
 
 export const Colors = {
-  // ── اللون الأساسي ─────────────────────────────
+  // ── اللون الأساسي (تركوازي فاتح / Light Turquoise) ──
   primary: {
-    50:  '#E8F8F1',
-    100: '#C5EDD9',
-    200: '#9EDFC0',
-    300: '#6DD1A4',
-    400: '#45C68E',
-    500: '#2BB673', // اللون الرئيسي
-    600: '#22A063',
-    700: '#178751',
-    800: '#0D6D3F',
-    900: '#05542F',
+    50:  '#F0FBFA', // خلفية تركوازية شفافة جدًا
+    100: '#DCF5F1', // خلفية البطاقات والأيقونات
+    200: '#BCEAE3', // حدود ناعمة جدًا
+    300: '#8EDCCF', // عناصر ثانوية فاتحة
+    400: '#5BC9B8', // hover / لمسات
+    500: '#2FB8A8', // اللون الرئيسي - تركوازي فاتح هادئ
+    600: '#229E91', // نص على خلفية فاتحة / أزرار مضغوطة
+    700: '#187F76', // نص مؤكد، أيقونات داكنة قليلاً
+    800: '#106059',
+    900: '#0A433E',
   },
 
   // ── الألوان المحايدة ───────────────────────────
   neutral: {
     0:   '#FFFFFF',
-    50:  '#F8F9FA',
-    100: '#F1F3F5',
-    200: '#E9ECEF',
-    300: '#DEE2E6',
-    400: '#CED4DA',
-    500: '#ADB5BD',
-    600: '#868E96',
-    700: '#495057',
-    800: '#343A40',
-    900: '#212529',
+    50:  '#F8FAFA',
+    100: '#F1F5F4',
+    200: '#E9EFEE',
+    300: '#DEE7E5',
+    400: '#CED9D7',
+    500: '#ADBDBA',
+    600: '#869896',
+    700: '#495958',
+    800: '#34403F',
+    900: '#1A2E2B',
   },
 
   // ── الأزرق الناعم (accent) ─────────────────────
@@ -83,14 +83,16 @@ export const Colors = {
 export const AppColors = {
   // الخلفيات
   background: Colors.neutral[50],
-  backgroundAlt: Colors.neutral[100],
+  backgroundAlt: Colors.primary[50], // لمسة تركوازية هادئة جدًا
   surface: Colors.white,
   surfaceSecondary: Colors.neutral[50],
+  surfaceTinted: Colors.primary[50], // خلفية البطاقات ذات اللمسة التركوازية
 
   // الألوان الأساسية
   primary: Colors.primary[500],
   primaryLight: Colors.primary[100],
   primaryDark: Colors.primary[700],
+  primarySoft: Colors.primary[50],
 
   // النصوص
   textPrimary: Colors.neutral[900],
@@ -98,10 +100,12 @@ export const AppColors = {
   textMuted: Colors.neutral[500],
   textInverse: Colors.white,
   textOnPrimary: Colors.white,
+  textOnPrimarySoft: Colors.primary[700], // نص على خلفية primary[50]/[100]
 
   // الحدود
   border: Colors.neutral[200],
   borderStrong: Colors.neutral[300],
+  borderTinted: Colors.primary[200],
 
   // الحالات
   success: Colors.primary[500],
@@ -117,6 +121,7 @@ export const AppColors = {
   iconPrimary: Colors.neutral[700],
   iconSecondary: Colors.neutral[500],
   iconMuted: Colors.neutral[400],
+  iconAccent: Colors.primary[500],
 
   // الـ Splash
   splash: {
@@ -132,6 +137,7 @@ export const AppColors = {
   tabBar: {
     background: Colors.white,
     active: Colors.primary[500],
+    activeBg: Colors.primary[50],
     inactive: Colors.neutral[400],
     border: Colors.neutral[200],
   },

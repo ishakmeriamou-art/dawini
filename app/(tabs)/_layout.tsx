@@ -1,18 +1,16 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from 'expo-router';
+import CustomTabBar from '../../components/CustomTabBar';
 
 export default function TabsLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "الرئيسية",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
-          ),
-        }}
-      />
+    <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
+    >
+      <Tabs.Screen name="index" options={{ title: 'الرئيسية' }} />
+      <Tabs.Screen name="appointments" options={{ title: 'المواعيد' }} />
+      <Tabs.Screen name="messages" options={{ title: 'الرسائل' }} />
+      <Tabs.Screen name="profile" options={{ title: 'حسابي' }} />
     </Tabs>
   );
 }
