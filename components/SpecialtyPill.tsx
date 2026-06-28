@@ -1,9 +1,19 @@
-// components/SpecialtyPill.tsx
-// عنصر تخصص واحد ضمن شريط التخصصات الأفقي
-// يدير: دخول متدرّج (stagger)، انتقال سلس بين عادي/مفعّل، وتأثير ضغط واضح
+/// components/SpecialtyPill.tsx
+// ✅ النسخة المحسّنة — SpecialtyPill
+//
+// التحسينات:
+// 1. كل pill لها نفس الحجم دائماً (نص + أيقونة ظاهران في كلتا الحالتين)
+//    → لا كسر في الـ Layout عند التبديل بين التخصصات
+// 2. إصلاح iconColor الذي كان نفس اللون في الحالتين
+// 3. أيقونة مفعّلة: دائرة بيضاء + أيقونة بلون primary (واضحة وأنيقة)
+// 4. أيقونة غير مفعّلة: أيقونة بلون primary بدون دائرة
+// 5. النص موجود دائماً — فقط لونه يتغير (أبيض ↔ primary)
+// 6. حركة الدخول stagger محفوظة
+// 7. حركة الضغط محفوظة
+// 8. minWidth ثابت لمنع القفز
 
 import { useEffect } from 'react';
-import { Pressable, Text, View, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
   useSharedValue,
@@ -32,90 +42,124 @@ export default function SpecialtyPill({
   entryDelay = 0,
   onPress,
 }: SpecialtyPillProps) {
-  // ── حركة الدخول (Fade + Slide up) ──────────────
+
+  // ── 1. حركة الدخول (Fade + Slide up) ───────────
   const entryOpacity = useSharedValue(0);
-  const entryY = useSharedValue(12);
+  const entryY = useSharedValue(10);
 
   useEffect(() => {
     entryOpacity.value = withDelay(
       entryDelay,
-      withTiming(1, { duration: 380, easing: Easing.out(Easing.cubic) })
+      withTiming(1, { duration: 350, easing: Easing.out(Easing.cubic) })
     );
     entryY.value = withDelay(
       entryDelay,
-      withSpring(0, { damping: 15, stiffness: 140 })
+      withSpring(0, { damping: 16, stiffness: 150 })
     );
   }, []);
 
-  // ── حركة الانتقال بين عادي/مفعّل ──────────────
-  // progress: 0 = عادي (دائرة صغيرة شفافة), 1 = مفعّل (كبسولة تركوازية)
+  // ── 2. progress: 0 = عادي، 1 = مفعّل ───────────
   const progress = useSharedValue(isActive ? 1 : 0);
 
   useEffect(() => {
     progress.value = withTiming(isActive ? 1 : 0, {
-      duration: 280,
+      duration: 260,
       easing: Easing.inOut(Easing.cubic),
     });
   }, [isActive]);
 
-  // ── حركة الضغط (Scale) ──────────────
+  // ── 3. حركة الضغط ────────────────────────────
   const pressScale = useSharedValue(1);
+
+  // ── Animated Styles ───────────────────────────
 
   const entryStyle = useAnimatedStyle(() => ({
     opacity: entryOpacity.value,
     transform: [{ translateY: entryY.value }],
   }));
 
+  // خلفية الـ pill تتغير بين حالتين
   const pillStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(
       progress.value,
       [0, 1],
       [AppColors.primarySoft, AppColors.primary]
     ),
-    paddingHorizontal: 14 + progress.value * 4,
     transform: [{ scale: pressScale.value }],
   }));
 
+  // لون النص يتغير: primary → أبيض
   const labelStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    // نمنع العرض اللاحق للنص عندما لا تكون مفعّلة عبر تصغير الحجم تدريجيًا
-    transform: [{ scale: 0.85 + progress.value * 0.15 }],
+    color: interpolateColor(
+      progress.value,
+      [0, 1],
+      [AppColors.primary, AppColors.textOnPrimary]
+    ),
   }));
 
-  const iconWrapperStyle = useAnimatedStyle(() => ({
+  // الدائرة البيضاء خلف الأيقونة: تظهر فقط عند التفعيل
+  const iconBgStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
-    transform: [{ scale: progress.value }],
-    width: progress.value * 26,
-    marginRight: progress.value * Spacing[2],
+    transform: [{ scale: 0.6 + progress.value * 0.4 }],
   }));
 
-  const iconColor = isActive ? AppColors.primary : AppColors.primary;
+  // لون الأيقونة: primary (غير مفعّل) → primary داخل دائرة بيضاء (مفعّل)
+  // نستخدم interpolateColor لتمرير اللون للأيقونة عبر JS value
+  // لكن Ionicons لا يدعم Animated color مباشرةً،
+  // لذا نستخدم حيلة: نُظهر نسختين من الأيقونة بـ opacity معاكس
+  const iconActiveStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+  }));
+
+  const iconInactiveStyle = useAnimatedStyle(() => ({
+    opacity: 1 - progress.value,
+  }));
 
   return (
     <Animated.View style={entryStyle}>
       <Pressable
         onPress={onPress}
         onPressIn={() => {
-          pressScale.value = withTiming(0.92, { duration: 90 });
+          pressScale.value = withTiming(0.93, { duration: 80 });
         }}
         onPressOut={() => {
-          pressScale.value = withSpring(1, { damping: 12, stiffness: 220 });
+          pressScale.value = withSpring(1, { damping: 14, stiffness: 230 });
         }}
         hitSlop={4}
       >
         <Animated.View style={[styles.pill, pillStyle]}>
-          {!isActive && <Ionicons name={icon as any} size={17} color={iconColor} />}
 
-          {isActive && (
-            <>
-              <Animated.Text style={[styles.labelActive, labelStyle]} numberOfLines={1}>
-                {label}
-              </Animated.Text>
-              <Animated.View style={[styles.iconCircleActive, iconWrapperStyle]}>
-                <Ionicons name={icon as any} size={14} color={AppColors.primary} />
+          {/* ── الأيقونة ─────────────────────────── */}
+          <Animated.View style={styles.iconWrapper}>
+            {/* دائرة بيضاء (تظهر عند التفعيل) */}
+            <Animated.View style={[styles.iconCircle, iconBgStyle]}>
+              <Animated.View style={iconActiveStyle}>
+                <Ionicons
+                  name={icon as any}
+                  size={14}
+                  color={AppColors.primary}
+                />
               </Animated.View>
-            </>
-          )}
+            </Animated.View>
+
+            {/* أيقونة بدون دائرة (تظهر عند عدم التفعيل) */}
+            <Animated.View style={[styles.iconPlain, iconInactiveStyle]}>
+              <Ionicons
+                name={icon as any}
+                size={16}
+                color={AppColors.primary}
+              />
+            </Animated.View>
+          </Animated.View>
+
+          {/* ── النص ──────────────────────────────── */}
+          <Animated.Text
+            style={[styles.label, labelStyle]}
+            numberOfLines={1}
+          >
+            {label}
+          </Animated.Text>
+
         </Animated.View>
       </Pressable>
     </Animated.View>
@@ -124,24 +168,46 @@ export default function SpecialtyPill({
 
 const styles = StyleSheet.create({
   pill: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row-reverse',   // RTL: النص يمين، الأيقونة يسار
     alignItems: 'center',
     borderRadius: Spacing.borderRadius.full,
-    paddingVertical: Spacing[3],
+    paddingVertical: Spacing[2],    // 8px
+    paddingHorizontal: Spacing[4],  // 16px — ثابت دائماً لمنع القفز
     minHeight: 44,
+    minWidth: 80,                   // ✅ يمنع تقلّص العنصر
+    gap: Spacing[2],                // 8px بين النص والأيقونة
     justifyContent: 'center',
   },
-  labelActive: {
-    fontSize: Typography.size.sm,
-    fontWeight: Typography.weight.medium,
-    color: AppColors.textOnPrimary,
+
+  label: {
+    fontSize: Typography.size.sm,   // 13px
+    fontWeight: Typography.weight.semibold,
+    // اللون يُدار بـ Animated لا هنا
   },
-  iconCircleActive: {
+
+  // حاوية الأيقونتين (متراكبتان في نفس المكان)
+  iconWrapper: {
+    width: 26,
+    height: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // الدائرة البيضاء للحالة المفعّلة
+  iconCircle: {
+    position: 'absolute',
+    width: 26,
     height: 26,
     borderRadius: 13,
     backgroundColor: AppColors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
+  },
+
+  // الأيقونة المجردة للحالة غير المفعّلة
+  iconPlain: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
